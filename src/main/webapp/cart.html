@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FeastFlow — Your Cart</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0d1117; --surface: #161b22; --surface2: #1c2330; --surface3: #212940;
+    --gold: #e8a838; --gold-light: #f5c96a; --gold-dark: #b87d1a;
+    --teal: #0f9b8e; --teal-light: #1bbfb0;
+    --text: #f0ece4; --text-muted: #8b8680; --text-dim: #5a5650;
+    --danger: #e05555;
+    --border: rgba(232,168,56,0.12);
+    --font-display: 'Playfair Display', serif;
+    --font-body: 'DM Sans', sans-serif;
+    --nav-h: 68px;
+  }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h);
+    background: rgba(13,17,23,0.95); backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 2rem; z-index: 100; gap: 1.5rem;
+  }
+  .nav-logo { font-family: var(--font-display); font-size: 1.6rem; font-weight: 900; color: var(--gold); text-decoration: none; }
+  .nav-logo span { color: var(--teal-light); }
+  .nav-links { display: flex; align-items: center; gap: 0.25rem; margin-left: auto; }
+  .nav-link { padding: 0.5rem 0.9rem; border-radius: 8px; color: var(--text-muted); text-decoration: none; font-size: 0.88rem; font-weight: 500; cursor: pointer; transition: all 0.2s; background: transparent; border: none; font-family: var(--font-body); }
+  .nav-link:hover { color: var(--text); background: var(--surface2); }
+  .nav-link.active { color: var(--gold); }
+  .cart-btn {
+    position: relative;
+    display: flex; align-items: center; gap: 0.4rem;
+    padding: 0.5rem 1.1rem;
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    color: var(--bg) !important;
+    border-radius: 50px; font-weight: 600; cursor: pointer; border: none;
+    font-family: var(--font-body); font-size: 0.88rem; text-decoration: none;
+    transition: all 0.2s;
+  }
+  .cart-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(232,168,56,0.3); }
+  .cart-badge { background: var(--bg); color: var(--gold); border-radius: 50px; padding: 0.1rem 0.45rem; font-size: 10px; font-weight: 800; }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--teal), var(--teal-light)); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; cursor: pointer; color: white; margin-left: 0.5rem; }
+
+  /* PAGE */
+  .page-wrap {
+    margin-top: var(--nav-h);
+    padding: 2.5rem 4rem;
+    max-width: 1100px;
+    margin-left: auto; margin-right: auto;
+    margin-top: calc(var(--nav-h) + 2.5rem);
+  }
+
+  .page-breadcrumb { font-size: 12px; color: var(--text-dim); margin-bottom: 1rem; }
+  .page-breadcrumb a { color: var(--gold); text-decoration: none; }
+
+  .page-title {
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    font-weight: 900;
+    margin-bottom: 0.3rem;
+  }
+  .page-subtitle { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 2rem; }
+
+  .cart-layout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  /* LEFT COLUMN — Items */
+  .items-col {}
+
+  .cart-empty-state {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4rem 2rem;
+    text-align: center;
+  }
+  .cart-empty-state .empty-icon { font-size: 5rem; margin-bottom: 1.2rem; }
+  .cart-empty-state h3 { font-family: var(--font-display); font-size: 1.6rem; margin-bottom: 0.5rem; }
+  .cart-empty-state p { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.8rem; }
+  .browse-btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    color: var(--bg); text-decoration: none;
+    padding: 0.75rem 1.8rem; border-radius: 50px;
+    font-weight: 700; font-size: 0.9rem; transition: all 0.2s;
+  }
+  .browse-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(232,168,56,0.35); }
+
+  .restaurant-group {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+    margin-bottom: 1.2rem;
+  }
+
+  .rest-group-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 1rem 1.4rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .rest-group-name {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  .rest-group-badge {
+    font-size: 11px; font-weight: 600;
+    background: rgba(232,168,56,0.1);
+    color: var(--gold);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 0.15rem 0.6rem;
+  }
+
+  .cart-item-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.4rem;
+    border-bottom: 1px solid rgba(240,236,228,0.04);
+    transition: background 0.2s;
+  }
+  .cart-item-row:last-child { border-bottom: none; }
+  .cart-item-row:hover { background: rgba(255,255,255,0.02); }
+
+  .item-thumb {
+    width: 60px; height: 60px;
+    border-radius: 10px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: var(--surface3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+  }
+  .item-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+  .item-details { flex: 1; min-width: 0; }
+  .item-name { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem; }
+  .item-unit-price { font-size: 12px; color: var(--text-muted); }
+
+  .item-qty-ctrl {
+    display: flex; align-items: center; gap: 0;
+    border: 1.5px solid var(--gold);
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .iqb {
+    width: 32px; height: 32px;
+    background: transparent; border: none;
+    color: var(--gold); font-size: 18px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+    font-family: var(--font-body);
+  }
+  .iqb:hover { background: rgba(232,168,56,0.12); }
+  .iqb:active { background: rgba(232,168,56,0.25); }
+  .iqn { min-width: 30px; text-align: center; font-size: 14px; font-weight: 700; color: var(--text); }
+
+  .item-line-price {
+    font-weight: 700; font-size: 1rem; color: var(--gold);
+    min-width: 60px; text-align: right; flex-shrink: 0;
+  }
+
+  .item-remove {
+    background: none; border: none;
+    color: var(--text-dim); cursor: pointer; font-size: 16px;
+    width: 30px; height: 30px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; flex-shrink: 0;
+  }
+  .item-remove:hover { background: rgba(224,85,85,0.12); color: var(--danger); }
+
+  /* RIGHT — Summary */
+  .summary-col {
+    position: sticky;
+    top: calc(var(--nav-h) + 1.5rem);
+  }
+
+  .summary-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+  }
+
+  .summary-header {
+    padding: 1.2rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .summary-title { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; }
+
+  .summary-body { padding: 1.2rem 1.5rem; }
+
+  .coupon-row {
+    display: flex; gap: 0.5rem;
+    margin-bottom: 1.2rem;
+  }
+  .coupon-input {
+    flex: 1; background: var(--surface2);
+    border: 1px solid rgba(240,236,228,0.08); border-radius: 8px;
+    padding: 0.6rem 0.9rem; color: var(--text);
+    font-family: var(--font-body); font-size: 0.85rem; outline: none;
+    transition: border-color 0.2s;
+  }
+  .coupon-input:focus { border-color: var(--gold); }
+  .coupon-apply {
+    padding: 0.6rem 1rem;
+    background: rgba(232,168,56,0.1);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--gold); font-family: var(--font-body); font-size: 0.85rem;
+    font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  }
+  .coupon-apply:hover { background: rgba(232,168,56,0.2); }
+
+  .price-line {
+    display: flex; justify-content: space-between;
+    font-size: 13px; color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
+  .price-line.savings { color: #4dbb71; }
+  .price-line.total {
+    font-size: 1.05rem; font-weight: 700;
+    color: var(--text);
+    padding-top: 0.7rem;
+    border-top: 1px solid var(--border);
+    margin-top: 0.4rem;
+  }
+
+  .checkout-btn {
+    width: 100%; margin-top: 1.2rem;
+    padding: 0.95rem;
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    color: var(--bg); border: none; border-radius: 12px;
+    font-family: var(--font-display); font-size: 1rem; font-weight: 700;
+    cursor: pointer; transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+  .checkout-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(232,168,56,0.4); }
+  .checkout-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .safe-note {
+    display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+    font-size: 11px; color: var(--text-dim); margin-top: 0.8rem;
+  }
+
+  /* PROMO APPLIED STRIP */
+  .promo-applied {
+    display: none;
+    align-items: center; gap: 0.5rem;
+    padding: 0.6rem 0.9rem;
+    background: rgba(77,187,113,0.1);
+    border: 1px solid rgba(77,187,113,0.25);
+    border-radius: 8px;
+    font-size: 12px; font-weight: 500; color: #4dbb71;
+    margin-bottom: 1rem;
+  }
+  .promo-applied.show { display: flex; }
+  .promo-remove { margin-left: auto; background: none; border: none; color: #4dbb71; cursor: pointer; font-size: 14px; }
+
+  /* CHECKOUT MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+    z-index: 999; align-items: center; justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 2rem; width: 440px;
+    animation: modalIn 0.3s ease;
+    max-height: 90vh; overflow-y: auto;
+  }
+  @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+  .modal h2 { font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 1.2rem; }
+  .form-row { margin-bottom: 1rem; }
+  .form-row label { display: block; font-size: 12px; font-weight: 500; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem; }
+  .form-row input, .form-row textarea, .form-row select {
+    width: 100%; background: var(--surface2); border: 1px solid rgba(240,236,228,0.08);
+    border-radius: 10px; padding: 0.7rem; color: var(--text);
+    font-family: var(--font-body); font-size: 0.9rem; outline: none;
+  }
+  .form-row input:focus, .form-row textarea:focus { border-color: var(--gold); }
+  .form-row textarea { resize: vertical; height: 70px; }
+  .form-row select { background: var(--surface2); }
+  .modal-btns { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+  .modal-cancel { flex: 1; padding: 0.75rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--text-muted); font-family: var(--font-body); font-size: 0.9rem; cursor: pointer; }
+  .modal-place { flex: 2; padding: 0.75rem; background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: var(--bg); border: none; border-radius: 10px; font-family: var(--font-body); font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+
+  /* SUCCESS */
+  .success-screen {
+    display: none; position: fixed; inset: 0;
+    background: var(--bg); z-index: 9999;
+    flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  }
+  .success-screen.show { display: flex; }
+  .success-icon { font-size: 5rem; margin-bottom: 1rem; animation: bounce 0.6s ease; }
+  @keyframes bounce { 0%,100%{transform:scale(1)} 50%{transform:scale(1.3)} }
+  .success-screen h2 { font-family: var(--font-display); font-size: 2rem; color: var(--teal-light); margin-bottom: 0.5rem; }
+  .success-screen p { color: var(--text-muted); margin-bottom: 2rem; }
+  .success-screen .eta { font-size: 1.5rem; font-weight: 700; color: var(--gold); }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 50px;
+    padding: 0.6rem 1.2rem; font-size: 13px; font-weight: 500; color: var(--text);
+    opacity: 0; transition: all 0.3s; z-index: 999; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 860px) {
+    .cart-layout { grid-template-columns: 1fr; }
+    .summary-col { position: static; }
+    .page-wrap { padding: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="home.html" class="nav-logo">Feast<span>Flow</span></a>
+  <div class="nav-links">
+    <a class="nav-link" href="home.html">Home</a>
+    <a class="nav-link" href="restaurants.html">Restaurants</a>
+    <a class="cart-btn active" href="cart.html">
+      🛒 Cart <span class="cart-badge" id="navBadge">0</span>
+    </a>
+    <div class="avatar">JS</div>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="page-breadcrumb">
+    <a href="home.html">Home</a> › <a href="restaurants.html">Restaurants</a> › Your Cart
+  </div>
+  <div class="page-title">Your Cart 🛒</div>
+  <div class="page-subtitle" id="pageSubtitle">Loading your items...</div>
+
+  <div class="cart-layout">
+    <!-- LEFT: Items -->
+    <div class="items-col" id="itemsCol">
+      <!-- rendered by JS -->
+    </div>
+
+    <!-- RIGHT: Summary -->
+    <div class="summary-col">
+      <div class="summary-box">
+        <div class="summary-header">
+          <div class="summary-title">Order Summary</div>
+        </div>
+        <div class="summary-body">
+          <div class="coupon-row">
+            <input class="coupon-input" type="text" placeholder="Enter coupon code" id="couponInput">
+            <button class="coupon-apply" onclick="applyCoupon()">Apply</button>
+          </div>
+          <div class="promo-applied" id="promoApplied">
+            <span>🎉 FEAST40 applied — 40% OFF</span>
+            <button class="promo-remove" onclick="removeCoupon()">✕</button>
+          </div>
+          <div class="price-line"><span>Subtotal</span><span id="sumSubtotal">₹0</span></div>
+          <div class="price-line savings" id="discountLine" style="display:none"><span>Discount (40%)</span><span id="sumDiscount">−₹0</span></div>
+          <div class="price-line"><span>Delivery fee</span><span id="deliveryFee">₹29</span></div>
+          <div class="price-line"><span>Platform fee</span><span>₹5</span></div>
+          <div class="price-line"><span>Taxes & charges (5%)</span><span id="sumTax">₹0</span></div>
+          <div class="price-line total"><span>Total</span><span id="sumTotal">₹0</span></div>
+          <button class="checkout-btn" id="checkoutBtn" onclick="openCheckout()">Proceed to Checkout →</button>
+          <div class="safe-note">🔒 Safe & Secure payments</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CHECKOUT MODAL -->
+<div class="modal-overlay" id="checkoutModal">
+  <div class="modal">
+    <h2>Delivery Details</h2>
+    <div class="form-row">
+      <label>Full Name</label>
+      <input type="text" value="Jayesh S." placeholder="Your name">
+    </div>
+    <div class="form-row">
+      <label>Phone Number</label>
+      <input type="text" value="+91 98765 43210" placeholder="+91 XXXXX XXXXX">
+    </div>
+    <div class="form-row">
+      <label>Delivery Address</label>
+      <textarea placeholder="Flat no., Street, Area, City">12-A, Green Valley Apartments, Banjara Hills, Hyderabad - 500034</textarea>
+    </div>
+    <div class="form-row">
+      <label>Payment Method</label>
+      <select>
+        <option>UPI (Google Pay / PhonePe)</option>
+        <option>Credit / Debit Card</option>
+        <option>Cash on Delivery</option>
+        <option>Net Banking</option>
+      </select>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeCheckout()">Cancel</button>
+      <button class="modal-place" onclick="placeOrder()">Place Order 🎉</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<div class="success-screen" id="successScreen">
+  <div class="success-icon">🎉</div>
+  <h2>Order Placed!</h2>
+  <p>Your food is being prepared with love.</p>
+  <div class="eta">⏱ Estimated: 32 min</div>
+  <br><br>
+  <button onclick="goHome()" style="padding:0.75rem 2rem;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:var(--bg);border:none;border-radius:50px;font-family:var(--font-body);font-size:0.9rem;font-weight:700;cursor:pointer;">Back to Home</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ─── Cart State ───────────────────────────────────────────────
+  function loadCart() {
+    try { return JSON.parse(localStorage.getItem('feastflow_cart') || '{}'); }
+    catch(e) { return {}; }
+  }
+  function saveCart(cart) {
+    localStorage.setItem('feastflow_cart', JSON.stringify(cart));
+  }
+
+  let cart = loadCart();
+  let discountApplied = false;
+
+  // ─── Render ───────────────────────────────────────────────────
+  function render() {
+    cart = loadCart();
+    const col = document.getElementById('itemsCol');
+    const keys = Object.keys(cart);
+    const totalQty = keys.reduce((s, k) => s + cart[k].qty, 0);
+
+    document.getElementById('navBadge').textContent = totalQty;
+    document.getElementById('pageSubtitle').textContent =
+      totalQty > 0 ? `${totalQty} item${totalQty > 1 ? 's' : ''} in your cart` : 'Your cart is empty';
+
+    if (keys.length === 0) {
+      col.innerHTML = `
+        <div class="cart-empty-state">
+          <div class="empty-icon">🛒</div>
+          <h3>Your cart is empty</h3>
+          <p>Looks like you haven't added anything yet.<br>Explore our restaurants and find something delicious!</p>
+          <a href="restaurants.html" class="browse-btn">Browse Restaurants 🍴</a>
+        </div>`;
+      updateSummary(0);
+      document.getElementById('checkoutBtn').disabled = true;
+      return;
+    }
+
+    document.getElementById('checkoutBtn').disabled = false;
+
+    // Group by restaurant
+    const groups = {};
+    keys.forEach(name => {
+      const r = cart[name].restaurant || 'Paradise Biryani House';
+      if (!groups[r]) groups[r] = [];
+      groups[r].push(name);
+    });
+
+    col.innerHTML = Object.entries(groups).map(([restName, items]) => `
+      <div class="restaurant-group">
+        <div class="rest-group-header">
+          <span>🍽️</span>
+          <span class="rest-group-name">${restName}</span>
+          <span class="rest-group-badge">${items.length} item${items.length > 1 ? 's' : ''}</span>
+        </div>
+        ${items.map(name => {
+          const { price, qty } = cart[name];
+          return `
+          <div class="cart-item-row" id="row-${sanitizeId(name)}">
+            <div class="item-thumb">🍽️</div>
+            <div class="item-details">
+              <div class="item-name">${name}</div>
+              <div class="item-unit-price">₹${price} per item</div>
+            </div>
+            <div class="item-qty-ctrl">
+              <button class="iqb" onclick="changeQty('${escapeName(name)}', -1)">−</button>
+              <span class="iqn" id="qty-${sanitizeId(name)}">${qty}</span>
+              <button class="iqb" onclick="changeQty('${escapeName(name)}', 1)">+</button>
+            </div>
+            <div class="item-line-price" id="price-${sanitizeId(name)}">₹${price * qty}</div>
+            <button class="item-remove" onclick="removeItem('${escapeName(name)}')" title="Remove">🗑</button>
+          </div>`;
+        }).join('')}
+      </div>`).join('');
+
+    const subtotal = keys.reduce((s, k) => s + cart[k].price * cart[k].qty, 0);
+    updateSummary(subtotal);
+  }
+
+  function sanitizeId(name) {
+    return name.replace(/[^a-zA-Z0-9]/g, '_');
+  }
+  function escapeName(name) {
+    return name.replace(/'/g, "\\'");
+  }
+
+  function updateSummary(subtotal) {
+    const discount = discountApplied ? Math.round(subtotal * 0.4) : 0;
+    const discounted = subtotal - discount;
+    const delivery = subtotal === 0 ? 0 : 29;
+    const platform = subtotal === 0 ? 0 : 5;
+    const tax = Math.round(discounted * 0.05);
+    const total = discounted + delivery + platform + tax;
+
+    document.getElementById('sumSubtotal').textContent = '₹' + subtotal;
+    document.getElementById('sumTax').textContent = '₹' + tax;
+    document.getElementById('deliveryFee').textContent = '₹' + delivery;
+    document.getElementById('sumTotal').textContent = '₹' + total;
+
+    const dLine = document.getElementById('discountLine');
+    document.getElementById('sumDiscount').textContent = '−₹' + discount;
+    dLine.style.display = discount > 0 ? 'flex' : 'none';
+  }
+
+  // ─── Actions ──────────────────────────────────────────────────
+  function changeQty(name, delta) {
+    cart = loadCart();
+    if (!cart[name]) return;
+    cart[name].qty += delta;
+    if (cart[name].qty <= 0) {
+      delete cart[name];
+    }
+    saveCart(cart);
+    render();
+  }
+
+  function removeItem(name) {
+    cart = loadCart();
+    delete cart[name];
+    saveCart(cart);
+    showToast('Item removed from cart');
+    render();
+  }
+
+  function applyCoupon() {
+    const code = document.getElementById('couponInput').value.trim().toUpperCase();
+    if (code === 'FEAST40') {
+      discountApplied = true;
+      document.getElementById('promoApplied').classList.add('show');
+      const subtotal = Object.keys(cart).reduce((s, k) => s + cart[k].price * cart[k].qty, 0);
+      updateSummary(subtotal);
+      showToast('🎉 Coupon FEAST40 applied!');
+    } else if (code === '') {
+      showToast('Please enter a coupon code');
+    } else {
+      showToast('❌ Invalid coupon code');
+    }
+  }
+
+  function removeCoupon() {
+    discountApplied = false;
+    document.getElementById('promoApplied').classList.remove('show');
+    document.getElementById('couponInput').value = '';
+    const subtotal = Object.keys(cart).reduce((s, k) => s + cart[k].price * cart[k].qty, 0);
+    updateSummary(subtotal);
+    showToast('Coupon removed');
+  }
+
+  function openCheckout() {
+    if (Object.keys(loadCart()).length === 0) { showToast('Add items first!'); return; }
+    document.getElementById('checkoutModal').classList.add('show');
+  }
+  function closeCheckout() {
+    document.getElementById('checkoutModal').classList.remove('show');
+  }
+  function placeOrder() {
+    localStorage.removeItem('feastflow_cart');
+    document.getElementById('checkoutModal').classList.remove('show');
+    document.getElementById('successScreen').classList.add('show');
+  }
+  function goHome() {
+    window.location.href = 'home.html';
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  // Init
+  render();
+</script>
+</body>
+</html>

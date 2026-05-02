@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FeastFlow — Paradise Biryani House</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0d1117; --surface: #161b22; --surface2: #1c2330;
+    --gold: #e8a838; --gold-light: #f5c96a; --gold-dark: #b87d1a;
+    --teal: #0f9b8e; --teal-light: #1bbfb0;
+    --text: #f0ece4; --text-muted: #8b8680; --text-dim: #5a5650;
+    --border: rgba(232,168,56,0.12);
+    --font-display: 'Playfair Display', serif;
+    --font-body: 'DM Sans', sans-serif;
+    --nav-h: 68px;
+    --cart-w: 340px;
+  }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h);
+    background: rgba(13,17,23,0.95); backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 2rem; z-index: 100; gap: 1.5rem;
+  }
+  .nav-logo { font-family: var(--font-display); font-size: 1.6rem; font-weight: 900; color: var(--gold); text-decoration: none; }
+  .nav-logo span { color: var(--teal-light); }
+  .nav-links { display: flex; align-items: center; gap: 0.25rem; margin-left: auto; }
+  .nav-link { padding: 0.5rem 0.9rem; border-radius: 8px; color: var(--text-muted); text-decoration: none; font-size: 0.88rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+  .nav-link:hover { color: var(--text); background: var(--surface2); }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--teal), var(--teal-light)); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; cursor: pointer; color: white; }
+
+  /* RESTAURANT HERO */
+  .rest-hero {
+    margin-top: var(--nav-h);
+    position: relative;
+    height: 320px;
+    overflow: hidden;
+  }
+  .rest-hero-bg {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(to bottom, rgba(13,17,23,0.3) 0%, rgba(13,17,23,0.95) 100%),
+      url('https://images.unsplash.com/photo-1563379091339-03246963e9cd?w=1400&q=80') center/cover no-repeat;
+  }
+  .rest-hero-content {
+    position: absolute; bottom: 2rem; left: 4rem; right: calc(var(--cart-w) + 3rem);
+    display: flex; align-items: flex-end; gap: 1.5rem;
+  }
+  .rest-logo-thumb {
+    width: 90px; height: 90px;
+    background: var(--surface);
+    border: 3px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .rest-logo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .rest-hero-info h1 { font-family: var(--font-display); font-size: 2.2rem; font-weight: 900; }
+  .rest-hero-info .cuisine-tag { font-size: 13px; color: var(--text-muted); margin-bottom: 0.6rem; }
+  .hero-meta { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+  .meta-chip {
+    display: flex; align-items: center; gap: 0.35rem;
+    background: rgba(22,27,34,0.8); backdrop-filter: blur(8px);
+    border: 1px solid var(--border); border-radius: 50px;
+    padding: 0.3rem 0.7rem; font-size: 12px;
+  }
+  .meta-chip.green { border-color: rgba(15,155,142,0.3); color: var(--teal-light); }
+  .meta-chip.gold { border-color: rgba(232,168,56,0.3); color: var(--gold-light); }
+
+  /* BODY LAYOUT */
+  .page-body {
+    display: flex;
+    padding: 2rem 4rem;
+    gap: 2rem;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+
+  /* LEFT - Menu */
+  .menu-col { flex: 1; min-width: 0; }
+
+  /* Menu Nav */
+  .menu-nav {
+    display: flex; gap: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.3rem;
+    margin-bottom: 1.8rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .menu-nav::-webkit-scrollbar { display: none; }
+  .menu-tab {
+    flex-shrink: 0;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    border: none;
+    background: transparent;
+    font-family: var(--font-body);
+  }
+  .menu-tab.active { background: var(--gold); color: var(--bg); font-weight: 600; }
+
+  /* Menu Section */
+  .menu-section { margin-bottom: 2.5rem; }
+  .menu-section-title {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Dish Items */
+  .dish-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 14px;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    margin-bottom: 0.6rem;
+  }
+  .dish-item:hover { background: var(--surface); border-color: var(--border); }
+
+  .dish-img-sm {
+    width: 90px; height: 90px;
+    border-radius: 12px;
+    overflow: hidden;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .dish-img-sm img { width: 100%; height: 100%; object-fit: cover; }
+  .veg-dot {
+    position: absolute; bottom: 4px; left: 4px;
+    width: 14px; height: 14px;
+    border: 1.5px solid #2a8a2a;
+    border-radius: 2px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(13,17,23,0.7);
+  }
+  .veg-dot::after { content: ''; width: 6px; height: 6px; background: #3dba3d; border-radius: 50%; }
+  .nonveg-dot {
+    position: absolute; bottom: 4px; left: 4px;
+    width: 14px; height: 14px;
+    border: 1.5px solid #8a2a2a;
+    border-radius: 2px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(13,17,23,0.7);
+  }
+  .nonveg-dot::after { content: ''; width: 6px; height: 6px; background: #d43333; border-radius: 50%; transform: rotate(0deg); clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
+
+  .dish-info { flex: 1; min-width: 0; }
+  .dish-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.3rem; }
+  .dish-name-full { font-weight: 600; font-size: 0.95rem; }
+  .dish-price-full { font-weight: 700; color: var(--gold); font-size: 1rem; white-space: nowrap; }
+  .dish-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.6rem; }
+  .dish-tags { display: flex; gap: 0.4rem; margin-bottom: 0.5rem; }
+  .dish-tag { font-size: 10px; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 50px; }
+  .dish-tag.spicy { background: rgba(224,85,85,0.1); color: #f08080; border: 1px solid rgba(224,85,85,0.2); }
+  .dish-tag.popular { background: rgba(232,168,56,0.1); color: var(--gold); border: 1px solid var(--border); }
+  .dish-tag.new { background: rgba(15,155,142,0.1); color: var(--teal-light); border: 1px solid rgba(15,155,142,0.2); }
+
+  .add-btn-wrap { display: flex; align-items: center; gap: 0.5rem; }
+
+  .add-btn {
+    display: flex; align-items: center; gap: 0.4rem;
+    padding: 0.4rem 0.9rem;
+    background: transparent;
+    border: 1.5px solid var(--gold);
+    color: var(--gold);
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .add-btn:hover { background: var(--gold); color: var(--bg); }
+
+  .qty-ctrl {
+    display: none;
+    align-items: center;
+    gap: 0;
+    border: 1.5px solid var(--gold);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .qty-ctrl.show { display: flex; }
+  .qty-btn {
+    width: 30px; height: 30px;
+    background: transparent;
+    border: none;
+    color: var(--gold);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+  .qty-btn:hover { background: rgba(232,168,56,0.15); }
+  .qty-num { min-width: 28px; text-align: center; font-size: 13px; font-weight: 600; color: var(--text); }
+
+  /* RIGHT - Cart */
+  .cart-col {
+    width: var(--cart-w);
+    flex-shrink: 0;
+  }
+
+  .cart-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    position: sticky;
+    top: calc(var(--nav-h) + 1.5rem);
+    overflow: hidden;
+  }
+
+  .cart-header {
+    padding: 1.2rem 1.4rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .cart-title { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; }
+  .cart-count { background: var(--gold); color: var(--bg); border-radius: 50px; padding: 0.15rem 0.6rem; font-size: 11px; font-weight: 700; }
+
+  .cart-empty {
+    padding: 2.5rem 1.4rem;
+    text-align: center;
+  }
+  .cart-empty-icon { font-size: 3rem; margin-bottom: 0.8rem; }
+  .cart-empty p { font-size: 13px; color: var(--text-muted); }
+
+  .cart-items { padding: 0.5rem 0; display: none; }
+
+  .cart-item {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.75rem 1.4rem;
+    border-bottom: 1px solid rgba(240,236,228,0.05);
+  }
+  .ci-name { flex: 1; font-size: 13px; font-weight: 500; }
+  .ci-qty { font-size: 12px; color: var(--text-muted); }
+  .ci-price { font-size: 13px; font-weight: 600; color: var(--gold); white-space: nowrap; }
+  .ci-remove { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 14px; }
+  .ci-remove:hover { color: #e05555; }
+
+  .cart-footer {
+    padding: 1.2rem 1.4rem;
+    border-top: 1px solid var(--border);
+    display: none;
+  }
+
+  .cart-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+  }
+  .cart-row.total {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    padding-top: 0.6rem;
+    border-top: 1px solid var(--border);
+    margin-top: 0.4rem;
+  }
+
+  .checkout-btn {
+    width: 100%;
+    padding: 0.85rem;
+    margin-top: 1rem;
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    color: var(--bg);
+    border: none;
+    border-radius: 12px;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .checkout-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(232,168,56,0.35); }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 0.6rem 1.2rem;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 999;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* Checkout Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2rem;
+    width: 420px;
+    animation: modalIn 0.3s ease;
+  }
+  @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+  .modal h2 { font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 1.2rem; }
+  .form-row { margin-bottom: 1rem; }
+  .form-row label { display: block; font-size: 12px; font-weight: 500; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem; }
+  .form-row input, .form-row textarea, .form-row select {
+    width: 100%; background: var(--surface2); border: 1px solid rgba(240,236,228,0.08);
+    border-radius: 10px; padding: 0.7rem; color: var(--text);
+    font-family: var(--font-body); font-size: 0.9rem; outline: none;
+  }
+  .form-row input:focus, .form-row textarea:focus { border-color: var(--gold); }
+  .form-row textarea { resize: vertical; height: 70px; }
+
+  .modal-btns { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+  .modal-cancel { flex: 1; padding: 0.75rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--text-muted); font-family: var(--font-body); font-size: 0.9rem; cursor: pointer; }
+  .modal-place { flex: 2; padding: 0.75rem; background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: var(--bg); border: none; border-radius: 10px; font-family: var(--font-body); font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+
+  /* Success */
+  .success-screen {
+    display: none;
+    position: fixed; inset: 0;
+    background: var(--bg);
+    z-index: 9999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .success-screen.show { display: flex; }
+  .success-icon { font-size: 5rem; margin-bottom: 1rem; animation: bounce 0.6s ease; }
+  @keyframes bounce { 0%,100%{transform:scale(1)} 50%{transform:scale(1.3)} }
+  .success-screen h2 { font-family: var(--font-display); font-size: 2rem; color: var(--teal-light); margin-bottom: 0.5rem; }
+  .success-screen p { color: var(--text-muted); margin-bottom: 2rem; }
+  .success-screen .eta { font-size: 1.5rem; font-weight: 700; color: var(--gold); }
+
+  @media (max-width: 900px) {
+    .cart-col { display: none; }
+    .rest-hero-content { left: 1.5rem; right: 1.5rem; }
+    .page-body { padding: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="home.html" class="nav-logo">Feast<span>Flow</span></a>
+  <div class="nav-links">
+    <a class="nav-link" href="home.html">Home</a>
+    <a class="nav-link" href="restaurants.html">Restaurants</a>
+    <a class="nav-link" href="cart.html" style="display:inline-flex;align-items:center;gap:0.4rem;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:var(--bg)!important;padding:0.5rem 1.1rem;border-radius:50px;font-weight:600;text-decoration:none;">
+      🛒 Cart <span id="navCartBadge" style="background:rgba(13,17,23,0.7);color:var(--gold);border-radius:50px;padding:0.1rem 0.45rem;font-size:10px;font-weight:800;display:none;"></span>
+    </a>
+    <div class="avatar">JS</div>
+  </div>
+</nav>
+
+<!-- Restaurant Hero -->
+<div class="rest-hero">
+  <div class="rest-hero-bg"></div>
+  <div class="rest-hero-content">
+    <div class="rest-logo-thumb">
+      <img src="https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=200&q=80" alt="">
+    </div>
+    <div class="rest-hero-info">
+      <div class="cuisine-tag">Hyderabadi · Mughlai · North Indian</div>
+      <h1>Paradise Biryani House</h1>
+      <div class="hero-meta">
+        <div class="meta-chip green">⭐ 4.8 (2.4k reviews)</div>
+        <div class="meta-chip">🕐 30–40 min delivery</div>
+        <div class="meta-chip gold">₹200 for two</div>
+        <div class="meta-chip">📍 Banjara Hills</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Page Body -->
+<div class="page-body">
+
+  <!-- MENU COLUMN -->
+  <div class="menu-col">
+
+    <div class="menu-nav">
+      <button class="menu-tab active" onclick="scrollToSection('biryani')">🍛 Biryani</button>
+      <button class="menu-tab" onclick="scrollToSection('starters')">🥗 Starters</button>
+      <button class="menu-tab" onclick="scrollToSection('mains')">🍲 Main Course</button>
+      <button class="menu-tab" onclick="scrollToSection('breads')">🫓 Breads</button>
+      <button class="menu-tab" onclick="scrollToSection('drinks')">🥤 Drinks</button>
+      <button class="menu-tab" onclick="scrollToSection('desserts')">🍮 Desserts</button>
+    </div>
+
+    <!-- Biryani -->
+    <div class="menu-section" id="biryani">
+      <div class="menu-section-title">🍛 Biryani Specials</div>
+
+      <div class="dish-item">
+        <div class="dish-img-sm">
+          <img src="https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=200&q=80" alt="" loading="lazy">
+          <div class="nonveg-dot"></div>
+        </div>
+        <div class="dish-info">
+          <div class="dish-header">
+            <div class="dish-name-full">Hyderabadi Dum Chicken Biryani</div>
+            <div class="dish-price-full">₹249</div>
+          </div>
+          <div class="dish-tags">
+            <span class="dish-tag popular">🔥 #1 Bestseller</span>
+            <span class="dish-tag spicy">🌶 Medium Spicy</span>
+          </div>
+          <div class="dish-desc">Slow-cooked dum biryani with tender chicken, saffron-infused basmati rice, fried onions, and secret spice blend. Served with raita.</div>
+          <div class="add-btn-wrap">
+            <button class="add-btn" onclick="addItem(this, 'Hyderabadi Chicken Biryani', 249)">+ Add</button>
+            <div class="qty-ctrl"><button class="qty-btn" onclick="changeQty(this,-1,249)">−</button><span class="qty-num">1</span><button class="qty-btn" onclick="changeQty(this,1,249)">+</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dish-item">
+        <div class="dish-img-sm">
+          <img src="https://images.unsplash.com/photo-1630431341973-02e1b662ec35?w=200&q=80" alt="" loading="lazy">
+          <div class="nonveg-dot"></div>
+        </div>
+        <div class="dish-info">
+          <div class="dish-header">
+            <div class="dish-name-full">Mutton Biryani — Kacchi Style</div>
+            <div class="dish-price-full">₹379</div>
+          </div>
+          <div class="dish-tags">
+            <span class="dish-tag popular">⭐ Chef's Special</span>
+          </div>
+          <div class="dish-desc">Traditional kacchi preparation with raw marinated mutton layered with rice, slow-cooked sealed in a handi. Rich, aromatic, unforgettable.</div>
+          <div class="add-btn-wrap">
+            <button class="add-btn" onclick="addItem(this, 'Mutton Biryani Kacchi Style', 379)">+ Add</button>
+            <div class="qty-ctrl"><button class="qty-btn" onclick="changeQty(this,-1,379)">−</button><span class="qty-num">1</span><button class="qty-btn" onclick="changeQty(this,1,379)">+</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dish-item">
+        <div class="dish-img-sm">
+          <img src="https://images.unsplash.com/photo-1596797038530-2c107229654b?w=200&q=80" alt="" loading="lazy">
+          <div class="veg-dot"></div>
+        </div>
+        <div class="dish-info">
+          <div class="dish-header">
+            <div class="dish-name-full">Paneer Dum Biryani</div>
+            <div class="dish-price-full">₹219</div>
+          </div>
+          <div class="dish-tags">
+            <span class="dish-tag new">🆕 New</span>
+          </div>
+          <div class="dish-desc">Saffron-scented basmati with marinated paneer cubes, whole spices, caramelized onions and fresh mint. A vegetarian masterpiece.</div>
+          <div class="add-btn-wrap">
+            <button class="add-btn" onclick="addItem(this, 'Paneer Dum Biryani', 219)">+ Add</button>
+            <div class="qty-ctrl"><button class="qty-btn" onclick="changeQty(this,-1,219)">−</button><span class="qty-num">1</span><button class="qty-btn" onclick="changeQty(this,1,219)">+</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Starters -->
+    <div class="menu-section" id="starters">
+      <div class="menu-section-title">🥗 Starters & Kebabs</div>
+
+      <div class="dish-item">
+        <div class="dish-img-sm">
+          <img src="https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=200&q=80" alt="" loading="lazy">
+          <div class="nonveg-dot"></div>
+        </div>
+        <div class="dish-info">
+          <div class="dish-header">
+            <div class="dish-name-full">Seekh Kebab (6 pcs)</div>
+            <div class="dish-price-full">₹199</div>
+          </div>
+          <div class="dish-tags"><span class="dish-tag popular">🔥 Popular</span><span class="dish-tag spicy">🌶 Spicy</span></div>
+          <div class="dish-desc">Minced lamb mixed with herbs and spices, skewered and grilled in a tandoor. Served with mint chutney and onion rings.</div>
+          <div class="add-btn-wrap">
+            <button class="add-btn" onclick="addItem(this, 'Seekh Kebab (6 pcs)', 199)">+ Add</button>
+            <div class="qty-ctrl"><button class="qty-btn" onclick="changeQty(this,-1,199)">−</button><span class="qty-num">1</span><button class="qty-btn" onclick="changeQty(this,1,199)">+</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dish-item">
+        <div class="dish-img-sm">
+          <img src="https://images.unsplash.com/photo-1626074353765-517a681e40be?w=200&q=80" alt="" loading="lazy">
+          <div class="nonveg-dot"></div>
+        </div>
+        <div class="dish-info">
+          <div class="dish-header">
+            <div class="dish-name-full">Chicken 65</div>
+            <div class="dish-price-full">₹179</div>
+          </div>
+          <div class="dish-tags"><span class="dish-tag popular">⭐ Fan Favourite</span></div>
+          <div class="dish-desc">Crispy deep-fried chicken with yogurt marinade, curry leaves, green chillies and a signature spice blend. A South Indian icon.</div>
+          <div class="add-btn-wrap">
+            <button class="add-btn" onclick="addItem(this, 'Chicken 65', 179)">+ Add</button>
+            <div class="qty-ctrl"><button class="qty-btn" onclick="changeQty(this,-1,179)">−</button><span class="qty-num">1</span><button class="qty-btn" onclick="changeQty(this,1,179)">+</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mains -->
+    <div class="menu-section" id="mains">
+      <div class="menu-section-title">🍲 Main Course</div>
+
+      <div class="dish-item">
+        <div class="dish-img-sm">
+          <img src="https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=200&q=80" alt="" loading="lazy">
+          <div class="nonveg-dot"></div>
+        </div>
+        <div class="dish-info">
+          <div class="dish-header">
+            <div class="dish-name-full">Butter Chicken Gravy</div>
+            <div class="dish-price-full">₹289</div>
+          </div>
+          <div class="dish-tags"><span class="dish-tag popular">🔥 Bestseller</span></div>
+          <div class="dish-desc">Tender chicken in a rich, creamy tomato-based sauce with butter, kasuri methi, and a touch of cream. Best with naan.</div>
+          <div class="add-btn-wrap">
+            <button class="add-btn" onclick="addItem(this, 'Butter Chicken Gravy', 289)">+ Add</button>
+            <div class="qty-ctrl"><button class="qty-btn" onclick="changeQty(this,-1,289)">−</button><span class="qty-num">1</span><button class="qty-btn" onclick="changeQty(this,1,289)">+</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dish-item">
+        <div class="dish-img-sm">
+          <img src="https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=200&q=80" alt="" loading="lazy">
+          <div class="veg-dot"></div>
+        </div>
+        <div class="dish-info">
+          <div class="dish-header">
+            <div class="dish-name-full">Dal Makhani</div>
+            <div class="dish-price-full">₹189</div>
+          </div>
+          <div class="dish-tags"><span class="dish-tag new">🌱 Veg</span></div>
+          <div class="dish-desc">Slow-cooked black lentils simmered overnight with cream, butter, and tomatoes. Silky, indulgent, deeply satisfying.</div>
+          <div class="add-btn-wrap">
+            <button class="add-btn" onclick="addItem(this, 'Dal Makhani', 189)">+ Add</button>
+            <div class="qty-ctrl"><button class="qty-btn" onclick="changeQty(this,-1,189)">−</button><span class="qty-num">1</span><button class="qty-btn" onclick="changeQty(this,1,189)">+</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Breads -->
+    <div class="menu-section" id="breads">
+      <div class="menu-section-title">🫓 Breads</div>
+      <div class="dish-item">
+        <div class="dish-img-sm">
+          <img src="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=200&q=80" alt="" loading="lazy">
+          <div class="veg-dot"></div>
+        </div>
+        <div class="dish-info">
+          <div class="dish-header"><div class="dish-name-full">Butter Garlic Naan</div><div class="dish-price-full">₹49</div></div>
+          <div class="dish-desc">Fluffy leavened bread baked in tandoor, finished with butter and fresh garlic. Perfect with any gravy.</div>
+          <div class="add-btn-wrap">
+            <button class="add-btn" onclick="addItem(this, 'Butter Garlic Naan', 49)">+ Add</button>
+            <div class="qty-ctrl"><button class="qty-btn" onclick="changeQty(this,-1,49)">−</button><span class="qty-num">1</span><button class="qty-btn" onclick="changeQty(this,1,49)">+</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Drinks -->
+    <div class="menu-section" id="drinks">
+      <div class="menu-section-title">🥤 Drinks & Beverages</div>
+      <div class="dish-item">
+        <div class="dish-img-sm" style="background: #1a2a1a; display:flex;align-items:center;justify-content:center;font-size:2.5rem;">🥛</div>
+        <div class="dish-info">
+          <div class="dish-header"><div class="dish-name-full">Rose Lassi (500ml)</div><div class="dish-price-full">₹89</div></div>
+          <div class="dish-desc">Thick chilled yogurt drink with rose essence and a hint of cardamom. The perfect complement to spicy food.</div>
+          <div class="add-btn-wrap">
+            <button class="add-btn" onclick="addItem(this, 'Rose Lassi', 89)">+ Add</button>
+            <div class="qty-ctrl"><button class="qty-btn" onclick="changeQty(this,-1,89)">−</button><span class="qty-num">1</span><button class="qty-btn" onclick="changeQty(this,1,89)">+</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Desserts -->
+    <div class="menu-section" id="desserts">
+      <div class="menu-section-title">🍮 Desserts</div>
+      <div class="dish-item">
+        <div class="dish-img-sm">
+          <img src="https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=200&q=80" alt="" loading="lazy">
+          <div class="veg-dot"></div>
+        </div>
+        <div class="dish-info">
+          <div class="dish-header"><div class="dish-name-full">Double Ka Meetha</div><div class="dish-price-full">₹99</div></div>
+          <div class="dish-tags"><span class="dish-tag popular">🏆 House Specialty</span></div>
+          <div class="dish-desc">Hyderabad's beloved bread pudding fried in ghee, soaked in sugar syrup with saffron and condensed milk, garnished with nuts.</div>
+          <div class="add-btn-wrap">
+            <button class="add-btn" onclick="addItem(this, 'Double Ka Meetha', 99)">+ Add</button>
+            <div class="qty-ctrl"><button class="qty-btn" onclick="changeQty(this,-1,99)">−</button><span class="qty-num">1</span><button class="qty-btn" onclick="changeQty(this,1,99)">+</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CART COLUMN -->
+  <div class="cart-col">
+    <div class="cart-box">
+      <div class="cart-header">
+        <div class="cart-title">Your Order</div>
+        <div class="cart-count" id="cartCount">0 items</div>
+      </div>
+      <div class="cart-empty" id="cartEmpty">
+        <div class="cart-empty-icon">🛒</div>
+        <p>Your cart is empty.<br>Add dishes to get started!</p>
+      </div>
+      <div class="cart-items" id="cartItems"></div>
+      <div class="cart-footer" id="cartFooter">
+        <div class="cart-row"><span>Subtotal</span><span id="subtotal">₹0</span></div>
+        <div class="cart-row"><span>Delivery fee</span><span>₹29</span></div>
+        <div class="cart-row"><span>Taxes & charges</span><span id="taxAmt">₹0</span></div>
+        <div class="cart-row total"><span>Total</span><span id="totalAmt">₹0</span></div>
+        <button class="checkout-btn" onclick="openCheckout()">Proceed to Checkout →</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">Item added to cart!</div>
+
+<!-- Checkout Modal -->
+<div class="modal-overlay" id="checkoutModal">
+  <div class="modal">
+    <h2>Delivery Details</h2>
+    <div class="form-row">
+      <label>Full Name</label>
+      <input type="text" value="Jayesh S." placeholder="Your name">
+    </div>
+    <div class="form-row">
+      <label>Phone Number</label>
+      <input type="text" value="+91 98765 43210" placeholder="+91 XXXXX XXXXX">
+    </div>
+    <div class="form-row">
+      <label>Delivery Address</label>
+      <textarea placeholder="Flat no., Street, Area, City">12-A, Green Valley Apartments, Banjara Hills, Hyderabad - 500034</textarea>
+    </div>
+    <div class="form-row">
+      <label>Payment Method</label>
+      <select style="background:var(--surface2);border:1px solid rgba(240,236,228,0.08);color:var(--text);">
+        <option>UPI (Google Pay / PhonePe)</option>
+        <option>Credit / Debit Card</option>
+        <option>Cash on Delivery</option>
+        <option>Net Banking</option>
+      </select>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeCheckout()">Cancel</button>
+      <button class="modal-place" onclick="placeOrder()">Place Order 🎉</button>
+    </div>
+  </div>
+</div>
+
+<!-- Success Screen -->
+<div class="success-screen" id="successScreen">
+  <div class="success-icon">🎉</div>
+  <h2>Order Placed!</h2>
+  <p>Your food is being prepared with love.</p>
+  <div class="eta">⏱ Estimated: 32 min</div>
+  <br><br>
+  <button onclick="window.location.href='home.html'" style="padding:0.75rem 2rem;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:var(--bg);border:none;border-radius:50px;font-family:var(--font-body);font-size:0.9rem;font-weight:700;cursor:pointer;">Back to Home</button>
+</div>
+
+<script>
+  // CART STATE — persisted to localStorage
+  const CART_KEY = 'feastflow_cart';
+  const RESTAURANT_NAME = 'Paradise Biryani House';
+
+  function loadCart() {
+    try { return JSON.parse(localStorage.getItem(CART_KEY) || '{}'); }
+    catch(e) { return {}; }
+  }
+  function saveCart(cart) {
+    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  }
+
+  let cart = loadCart();
+
+  // Sync existing menu UI with cart on page load
+  function syncMenuWithCart() {
+    Object.keys(cart).forEach(name => {
+      document.querySelectorAll('.dish-name-full').forEach(el => {
+        if (el.textContent === name) {
+          const wrap = el.closest('.dish-info').querySelector('.add-btn-wrap');
+          if (wrap) {
+            const addBtn = wrap.querySelector('.add-btn');
+            const qc = wrap.querySelector('.qty-ctrl');
+            const qn = qc.querySelector('.qty-num');
+            addBtn.style.display = 'none';
+            qc.classList.add('show');
+            qn.textContent = cart[name].qty;
+          }
+        }
+      });
+    });
+  }
+
+  function updateNavBadge() {
+    const total = Object.values(cart).reduce((s, v) => s + v.qty, 0);
+    const badge = document.getElementById('navCartBadge');
+    if (badge) {
+      badge.textContent = total;
+      badge.style.display = total > 0 ? 'inline' : 'none';
+    }
+  }
+
+  function addItem(btn, name, price) {
+    cart = loadCart();
+    const wrap = btn.parentElement;
+    const qctrl = wrap.querySelector('.qty-ctrl');
+    btn.style.display = 'none';
+    qctrl.classList.add('show');
+
+    if (!cart[name]) cart[name] = { price, qty: 1, restaurant: RESTAURANT_NAME };
+    else cart[name].qty++;
+
+    saveCart(cart);
+    renderCart();
+    updateNavBadge();
+    showToast(`${name} added!`);
+  }
+
+  function changeQty(btn, delta, price) {
+    cart = loadCart();
+    const ctrl = btn.parentElement;
+    const numEl = ctrl.querySelector('.qty-num');
+    const addBtn = ctrl.parentElement.querySelector('.add-btn');
+    let n = parseInt(numEl.textContent) + delta;
+
+    const nameEl = ctrl.closest('.dish-info').querySelector('.dish-name-full');
+    const name = nameEl.textContent;
+
+    if (n <= 0) {
+      ctrl.classList.remove('show');
+      addBtn.style.display = '';
+      delete cart[name];
+      numEl.textContent = 1;
+    } else {
+      numEl.textContent = n;
+      if (cart[name]) cart[name].qty = n;
+    }
+    saveCart(cart);
+    renderCart();
+    updateNavBadge();
+  }
+
+  function renderCart() {
+    cart = loadCart();
+    const itemsEl = document.getElementById('cartItems');
+    const emptyEl = document.getElementById('cartEmpty');
+    const footerEl = document.getElementById('cartFooter');
+    const countEl = document.getElementById('cartCount');
+
+    const keys = Object.keys(cart);
+    if (keys.length === 0) {
+      emptyEl.style.display = 'block';
+      itemsEl.style.display = 'none';
+      footerEl.style.display = 'none';
+      countEl.textContent = '0 items';
+      return;
+    }
+
+    emptyEl.style.display = 'none';
+    itemsEl.style.display = 'block';
+    footerEl.style.display = 'block';
+
+    let total = 0, count = 0;
+    itemsEl.innerHTML = '';
+    keys.forEach(name => {
+      const { price, qty } = cart[name];
+      const line = price * qty;
+      total += line; count += qty;
+      itemsEl.innerHTML += `
+        <div class="cart-item">
+          <span class="ci-name">${name}</span>
+          <span class="ci-qty">×${qty}</span>
+          <span class="ci-price">₹${line}</span>
+          <button class="ci-remove" onclick="removeItem('${name.replace(/'/g,"\\'")}')">✕</button>
+        </div>`;
+    });
+
+    countEl.textContent = count + ' item' + (count > 1 ? 's' : '');
+    document.getElementById('subtotal').textContent = '₹' + total;
+    const tax = Math.round(total * 0.05);
+    document.getElementById('taxAmt').textContent = '₹' + tax;
+    document.getElementById('totalAmt').textContent = '₹' + (total + 29 + tax);
+  }
+
+  function removeItem(name) {
+    cart = loadCart();
+    document.querySelectorAll('.dish-name-full').forEach(el => {
+      if (el.textContent === name) {
+        const wrap = el.closest('.dish-info').querySelector('.add-btn-wrap');
+        wrap.querySelector('.add-btn').style.display = '';
+        const qc = wrap.querySelector('.qty-ctrl');
+        qc.classList.remove('show');
+        qc.querySelector('.qty-num').textContent = 1;
+      }
+    });
+    delete cart[name];
+    saveCart(cart);
+    renderCart();
+    updateNavBadge();
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = '✅ ' + msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  function openCheckout() {
+    if (Object.keys(loadCart()).length === 0) { showToast('Add items first!'); return; }
+    document.getElementById('checkoutModal').classList.add('show');
+  }
+
+  function closeCheckout() {
+    document.getElementById('checkoutModal').classList.remove('show');
+  }
+
+  function placeOrder() {
+    localStorage.removeItem(CART_KEY);
+    document.getElementById('checkoutModal').classList.remove('show');
+    document.getElementById('successScreen').classList.add('show');
+  }
+
+  function scrollToSection(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.querySelectorAll('.menu-tab').forEach(t => t.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+
+  // Init
+  renderCart();
+  syncMenuWithCart();
+  updateNavBadge();
+</script>
+</body>
+</html>

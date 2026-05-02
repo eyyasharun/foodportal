@@ -1,42 +1,71 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title> sathvi HealthCare Portal</title>
+    <title>ShopEasy</title>
     <style>
         body {
             font-family: Arial;
             margin: 0;
-            background-color: #f4f9ff;
+            background: #f5f5f5;
         }
+
         header {
-            background-color: #2c7be5;
+            background: #ff6f61;
             color: white;
             padding: 15px;
             text-align: center;
         }
+
         nav {
-            background-color: #1a5fd0;
+            background: #333;
             padding: 10px;
             text-align: center;
         }
+
         nav a {
             color: white;
             margin: 10px;
             text-decoration: none;
             font-weight: bold;
         }
-        section {
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             padding: 20px;
         }
-        .card {
+
+        .product {
             background: white;
-            padding: 15px;
             margin: 15px;
+            padding: 15px;
+            width: 220px;
             border-radius: 8px;
             box-shadow: 0 0 5px gray;
+            text-align: center;
         }
+
+        .product img {
+            width: 100%;
+            height: 150px;
+        }
+
+        button {
+            background: #ff6f61;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #e85c50;
+        }
+
         footer {
-            background-color: #2c7be5;
+            background: #333;
             color: white;
             text-align: center;
             padding: 10px;
@@ -47,56 +76,58 @@
 <body>
 
 <header>
-    <h1>HealthCare Portal</h1>
-    <p>Your Health, Our Priority</p>
+    <h1>ShopEasy</h1>
+    <p>Best Online Shopping</p>
 </header>
 
 <nav>
     <a href="#">Home</a>
-    <a href="#">Services</a>
-    <a href="#">Doctors</a>
+    <a href="#">Products</a>
+    <a href="#">Cart</a>
     <a href="#">Contact</a>
 </nav>
 
-<section>
-    <div class="card">
-        <h2>Welcome</h2>
-        <p>We provide the best healthcare services including consultation, diagnosis, and treatment.</p>
+<div class="container">
+
+    <div class="product">
+        <img src="https://via.placeholder.com/200">
+        <h3>Smartphone</h3>
+        <p>₹15,000</p>
+        <button onclick="addToCart('Smartphone')">Add to Cart</button>
     </div>
 
-    <div class="card">
-        <h2>Our Services</h2>
-        <ul>
-            <li>General Checkup</li>
-            <li>Emergency Care</li>
-            <li>Lab Tests</li>
-            <li>Online Consultation</li>
-        </ul>
+    <div class="product">
+        <img src="https://via.placeholder.com/200">
+        <h3>Laptop</h3>
+        <p>₹55,000</p>
+        <button onclick="addToCart('Laptop')">Add to Cart</button>
     </div>
 
-    <div class="card">
-        <h2>Book Appointment</h2>
-        <form>
-            <label>Name:</label><br>
-            <input type="text"><br><br>
-
-            <label>Doctor:</label><br>
-            <select>
-                <option>Dr. Smith</option>
-                <option>Dr. John</option>
-            </select><br><br>
-
-            <label>Date:</label><br>
-            <input type="date"><br><br>
-
-            <button type="submit">Book</button>
-        </form>
+    <div class="product">
+        <img src="https://via.placeholder.com/200">
+        <h3>Headphones</h3>
+        <p>₹2,000</p>
+        <button onclick="addToCart('Headphones')">Add to Cart</button>
     </div>
-</section>
+
+    <div class="product">
+        <img src="https://via.placeholder.com/200">
+        <h3>Watch</h3>
+        <p>₹3,500</p>
+        <button onclick="addToCart('Watch')">Add to Cart</button>
+    </div>
+
+</div>
 
 <footer>
-    <p>© 2026 HealthCare Portal</p>
+    <p>© 2026 ShopEasy</p>
 </footer>
+
+<script>
+    function addToCart(product) {
+        alert(product + " added to cart!");
+    }
+</script>
 
 </body>
 </html>
